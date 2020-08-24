@@ -1,0 +1,19 @@
+{
+    "name": "salabun/crafter",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Vlad Salabun",
+            "email": "vlad@salabun.com"
+        }
+    ],
+	"minimum-stability": "dev",
+	"prefer-stable" : true,
+    "autoload": {
+        "psr-4": {
+            "Salabun\\": "src/"
+        }
+    },	
+    "require": {}
+}
