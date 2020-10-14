@@ -5,15 +5,13 @@ namespace Salabun;
 use Salabun\DataSets\WebRoutes;
 use Salabun\DataSets\DefaultFieldsParam;
 use Salabun\DB\MySQLParser;
+use Salabun\Crafter\Entity\EntityController;
 
 /**
  *  Генератор крудів:
  */
-class Crafter
+class Crafter extends EntityController
 {
-	protected $project = [];
-	public $entities = [];
-	protected $driver = 'MySQL';
     
     /**
      *  Скомпільований проект
@@ -24,7 +22,7 @@ class Crafter
     
     public function __construct() 
 	{
-		$this->webRoutes = new WebRoutes;
+		// $this->webRoutes = new WebRoutes;
 	}
     
     /** 
@@ -72,60 +70,7 @@ class Crafter
         return $this->driver;
 	}
     
-    /** 
-     *  Додати сутність:
-     */
-    public function addEntity($entity)
-	{
-		if(in_array($entity, $this->entities)) {
-            // TODO: помилка, сутність вже існує
-            
-            return $this;
-        }
-        
-        $this->entities[] = $entity;
-        $this->project['entities'][$entity] = [
-            'relations' => []
-        ];
-        
-        return $this;
-	}
-    
-    /** 
-     *  Дізнатись сутності проекту:
-     */
-    public function getEntities()
-	{
-		return $this->entities;
-	}
-    
-    /** 
-     *  Додати зв'язок між сутностями:
-     */
-    public function addRelation($entity, $relation, $relatedEntity)
-	{
 
-        if(!in_array($entity, $this->entities) or !in_array($relatedEntity, $this->entities)) {
-            // TODO: помилка, такої сутності нема
-            return $this;
-        }
-        
-		if(!$relation) {
-            // TODO: помилка, такого стосунку не існує
-            return $this;
-        }
-        
-		if(!isset($this->project['entities'][$entity]['relations'][$relation])) {
-            $this->project['entities'][$entity]['relations'][$relation] = [];
-        }
-        
-		if(!in_array($relatedEntity, $this->project['entities'][$entity]['relations'][$relation])) {
-            $this->project['entities'][$entity]['relations'][$relation][] = $relatedEntity;
-        }
-
-        return $this;
-        
-	}
     
     
 }
