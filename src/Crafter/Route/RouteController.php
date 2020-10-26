@@ -106,7 +106,7 @@ class RouteController extends ControllerController
             // Роути:
             foreach($this->getRouteMethodsTypes() as $method) {
                 
-                $sourceCode->line("Route::" . strtolower($method['type']) . "('" . EntityController::pluralize(strtolower($entity)) . $method['postfix'] . "', '" . $this->getAdminControllersNamespace() . $entity . "Controller@" . $method['method'] . "');");
+                $sourceCode->line("Route::" . strtolower($method['type']) . "('" . EntityController::pluralize(strtolower($entity)) . $method['postfix'] . "', '" . $this->getAdminControllersNamespace() . '\\'.$entity . "Controller@" . $method['method'] . "');");
 
             }
             
@@ -116,20 +116,6 @@ class RouteController extends ControllerController
             
         }
 
-        return $sourceCode->getCode();
-    }
-    
-    /**
-     *   Згенерувати сирці адмінських роутів:
-     */
-    public function getAdminEntityRoutes() : string
-	{      
-        $sourceCode = new CodeWriter;
-        
-        
-        
-        $sourceCode->line('Some entity');
-        
         return $sourceCode->getCode();
     }
     
