@@ -33,30 +33,68 @@ class Crafter extends EntityController
 		return $this->project;
 	}
     
-    
-	public function generateRoutes()
+    /** 
+     *  Генерація адмінських роутів:
+     */
+	public function generateAdminRoutes()
 	{
 		// TODO: 
-        // взяти всі сутності
-        // які потрібні веб-роути? назви
-        // які потрібні апі-роути? назви
 	}
     
-    public function generateViews()
+    /** 
+     *  Генерація клієнтських роутів:
+     */
+	public function generateAppRoutes()
+	{
+		// TODO: 
+	}
+
+    /** 
+     *  Генерація адмінських видів:
+     */
+    public function generateAdminViews()
 	{
 		// TODO:
 	}
     
-    public function generateModels()
+    /** 
+     *  Генерація клієнтських видів:
+     */
+    public function generateAppViews()
 	{
 		// TODO:
 	}
     
+    /** 
+     *  Генерація адмінських моделей:
+     */
+    public function generateAdminModels()
+	{
+		// TODO:
+	}
+    
+    /** 
+     *  Генерація клієнтських моделей:
+     */
+    public function generateAppModels()
+	{
+		// TODO:
+	}
+    
+    /** 
+     *  Генерація адмінських контроллерів:
+     */
     public function generateControllers()
 	{
 		// TODO:
-        
-        //
+	}
+    
+    /** 
+     *  Генерація клієнтських контроллерів:
+     */
+    public function generateAppControllers()
+	{
+		// TODO:
 	}
     
     /** 

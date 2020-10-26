@@ -9,10 +9,9 @@ use Salabun\Crafter\Error\ErrorController;
  */
 class ProjectController extends ErrorController
 { 
-    protected $project = [];
-	protected $entities = [];
-	protected $tables = [];
-	protected $driver = 'MySQL';
+    protected $projectName = null;
+    protected $projectDescription = null;
+    protected $projectData = [];
     
     public function __construct() 
 	{
@@ -21,8 +20,10 @@ class ProjectController extends ErrorController
 
 /*
     Наслідування:
+    - CopyRightController
     - ErrorController
     - ProjectController
+    - ControllerController
     - RouteController
     - ModelController
     - EntityController
