@@ -50,9 +50,44 @@ class ModelController extends RouteController
             'protected $table = "' . $this->getEntityTable($entity) . '";',
             '// public $timestamps = false;',
             'protected $fillable = [];',
-            '',
-        ])->defaultSpaces(0);
+        ])->defaultSpaces(4);
 
+        
+        // Якщо є зв'язки:
+        if(count($this->getEntityRelations($entity)) > 0) {
+
+            // Публікую звязки:
+            foreach($this->getEntityRelations($entity) as $relation => $relatedModels) {
+                
+                foreach($relatedModels as $relatedModel) {
+
+                    // HasOne:
+                    if($relation == 'hasOne') {
+
+                        $sourceCode->br()->lines([
+                            'public function ' . lcfirst(EntityController::pluralize($relatedModel)).'() ',
+                            '{',
+                        ]);
+
+                        $sourceCode->s(4)->line('return $this->hasOne("App\Role", "' . strtolower($relatedModel) . '_id", "id");');
+                        $sourceCode->s(0)->line('}');
+
+                    } else if($relation == 'hasMany') {
+                        // TODO: 
+                    }
+                }
+            }
+        }
+
+        // Звязки:
+        /*
+        public function role() 
+        {
+            
+        }*/
+
+
+        $sourceCode->defaultSpaces(0);
         $sourceCode->line('}');
         
 

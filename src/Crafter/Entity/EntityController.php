@@ -291,4 +291,12 @@ class EntityController extends ModelController
           return $this->project['entities'][$entity]['table'];
       }
 
+     /** 
+      *  Дізнатись зв'язки сутності:
+      */
+      public function getEntityRelations($entity)
+      {
+          return $this->project['entities'][$entity]['relations'];
+      }
+
 }
