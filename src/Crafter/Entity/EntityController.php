@@ -214,10 +214,10 @@ class EntityController extends ModelController
         $this->tables[] = $table;
         
         $this->project['entities'][$entity] = [
-            'relations' => []
+            'relations' => [],
+            'is_personal_data' => false,
+            'table' => $table
         ];
-        
-        $this->project['entities'][$entity]['table'] = $table;
         
         return $this;
 	}
@@ -264,6 +264,23 @@ class EntityController extends ModelController
 
         return $this;
         
+	}
+    
+    /** 
+     *  Додати захист персональних даних для сутності.
+     *  Діє лише для клієнтських контроллерів, бо адмін має доступ до всіх даних.
+     */
+    public function setAsPersonalData($entity)
+	{
+        
+        if(!in_array($entity, $this->entities)) {
+            // TODO: помилка, такої сутності нема
+            return $this;
+        }
+
+        $this->project['entities'][$entity]['is_personal_data'] = true;
+
+        return $this;
 	}
     
 }

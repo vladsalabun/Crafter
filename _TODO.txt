@@ -1,2 +1,3 @@
 1) Запити jQuery 
-2) Документацію для Swagger
+2) Запити Angular, ReactJS 
+3) Документацію для Swagger

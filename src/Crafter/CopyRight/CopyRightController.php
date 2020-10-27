@@ -2,12 +2,13 @@
 
 namespace Salabun\Crafter\CopyRight;
 
+use Salabun\Crafter\Composer\ComposerController;
 use Salabun\CodeWriter;
 
 /**
  *  Контроллер для управління проектом:
  */
-class CopyRightController
+class CopyRightController extends ComposerController
 { 
     protected $crafterVersion = 1;
     protected $authorName = 'Vlad Salabun';
