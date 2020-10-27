@@ -12,34 +12,18 @@ use Salabun\CodeWriter;
 class ControllerController extends ProjectController
 { 
 
+    /**
+     *  Префікси папок:
+     */
     protected $appControllersNamespace = 'AppApi';
     protected $adminControllersNamespace = 'AdminApi';
- 
-/*
-    protected $routeMethodsTypes = [
-        'create'        => 'POST', //single/bulk
-        'read'          => 'GET',
-        'update'        => 'PUT', // оновлення цілого обєкту, а якщо не передадуть всі поля? //single/bulk
-        'delete'        => 'DELETE',
-        'bulkCreate'    => 'POST', //single/bulk
-        'list'          => 'GET',
-        'bulkUpdate'    => 'PUT', // оновлення цілого обєкту, а якщо не передадуть всі поля? //single/bulk
-        'bulkDelete'    => 'DELETE',
-        
-        // Оновлення частини обєкту:
-        'patch'         => 'PATCH',
-        'bulkPatch'     => 'PATCH',
-        
-    ];
-*/
- 
  
     public function getAppControllersNamespace() 
 	{
         return $this->appControllersNamespace;
     }
     
-    public function getAdminControllersNamespace() 
+    public function getAdminControllersNamespace()
 	{
         return $this->adminControllersNamespace;
     }
@@ -80,6 +64,8 @@ class ControllerController extends ProjectController
             'use URL;',
             'use Validator;',
             'use Carbon\Carbon;',
+            '',
+            'use App\\' . $this->getAdminControllersNamespace() . 'Models\\'.$entity.';',
         ])->br();
         
         $sourceCode->lines([
@@ -100,7 +86,7 @@ class ControllerController extends ProjectController
                 
             $sourceCode->defaultSpaces(4)->lines([
                 '}',
-            ]);
+            ])->br();
         
             // Методи контролера:
             foreach($this->getRouteMethodsTypes() as $method) {
@@ -180,7 +166,7 @@ class ControllerController extends ProjectController
         // На початку кожного файлу додаю свої копірайти:
         $sourceCode->line($this->getCopyRights())->br();
         $sourceCode->lines([
-            'namespace App\Http\Controllers\\' . $this->getAdminControllersNamespace() . ';',
+            'namespace App\Http\Controllers\\' . $this->getAppControllersNamespace() . ';',
             '',
             'use App\Http\Controllers\Controller;',
             'use Illuminate\Http\Request;',
@@ -194,6 +180,8 @@ class ControllerController extends ProjectController
             'use URL;',
             'use Validator;',
             'use Carbon\Carbon;',
+            '',
+            'use App\\' . $this->getAppControllersNamespace() . 'Models\\'.$entity.';',
         ])->br();
         
         $sourceCode->lines([
@@ -214,7 +202,7 @@ class ControllerController extends ProjectController
                 
             $sourceCode->defaultSpaces(4)->lines([
                 '}',
-            ]);
+            ])->br();
         
             // Методи контролера:
             foreach($this->getRouteMethodsTypes() as $method) {
@@ -269,7 +257,7 @@ class ControllerController extends ProjectController
             '{',
         ]);
         
-        var_dump($entity, $this->project['entities'][$entity]['is_personal_data']);
+            // Захищаю персональні дані:
             if($this->project['entities'][$entity]['is_personal_data'] == true) {
                 $personalData = 'where("user_id", Auth::user()->id)->';
             } else {

@@ -221,23 +221,7 @@ class EntityController extends ModelController
         
         return $this;
 	}
-    
-    /** 
-     *  Дізнатись сутності проекту:
-     */
-    public function getEntities()
-	{
-		return $this->entities;
-	}
-    
-    /** 
-     *  Дізнатись таблиці проекту:
-     */
-    public function getTables()
-	{
-		return $this->tables;
-	}
-    
+
     /** 
      *  Додати зв'язок між сутностями:
      */
@@ -283,4 +267,28 @@ class EntityController extends ModelController
         return $this;
 	}
     
+    /** 
+     *  Дізнатись сутності проекту:
+     */
+     public function getEntities()
+     {
+         return $this->entities;
+     }
+     
+     /** 
+      *  Дізнатись таблиці проекту:
+      */
+     public function getTables()
+     {
+         return $this->tables;
+     }
+
+     /** 
+      *  Дізнатись таблицю сутності:
+      */
+      public function getEntityTable($entity)
+      {
+          return $this->project['entities'][$entity]['table'];
+      }
+
 }
