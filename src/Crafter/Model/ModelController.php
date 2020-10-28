@@ -15,6 +15,7 @@ class ModelController extends RouteController
         'hasOne',
         'hasMany',
         'belongsTo',
+        'belongsToMany',
     ];
     
     /*
@@ -61,7 +62,6 @@ class ModelController extends RouteController
                 
                 foreach($relatedModels as $relatedModel) {
 
-                    // HasOne:
                     if($relation == 'hasOne') {
 
                         $sourceCode->br()->lines([
@@ -72,6 +72,16 @@ class ModelController extends RouteController
                         $sourceCode->s(4)->line('return $this->hasOne("App\\' . $this->getAdminControllersNamespace() . 'Models\\'.$relatedModel.'", "id", "' . Str::toSnakeCase($relatedModel) . '_id");');
                         $sourceCode->s(0)->line('}');
 
+                    } else if($relation == 'belongsTo') {
+
+                        $sourceCode->br()->lines([
+                            'public function ' . lcfirst($relatedModel).'() ', // Однина
+                            '{',
+                        ]);
+
+                        $sourceCode->s(4)->line('return $this->belongsTo("App\\' . $this->getAdminControllersNamespace() . 'Models\\'.$relatedModel.'", "' . Str::toSnakeCase($relatedModel) . '_id", "id");');
+                        $sourceCode->s(0)->line('}');
+                        
                     } else if($relation == 'hasMany') {
 
                         $sourceCode->br()->lines([
@@ -82,12 +92,44 @@ class ModelController extends RouteController
                         $sourceCode->s(4)->line('return $this->hasMany("App\\' . $this->getAdminControllersNamespace() . 'Models\\'.$relatedModel.'", "id", "' . Str::toSnakeCase($relatedModel) . '_id");');
                         $sourceCode->s(0)->line('}');
                         
+                    } else if($relation == 'belongsToMany') {
+
+                        $pivotTable = null;            
+                        $checkPivotTable1 = $this->getEntityTable($relatedModel) . '_' . $this->getEntityTable($entity);            
+                        $checkPivotTable2 = $this->getEntityTable($entity) . '_' . $this->getEntityTable($relatedModel);            
+
+                        if(in_array($checkPivotTable1, $this->getTables())) {
+                            $pivotTable =$checkPivotTable1;
+                        } 
+
+                        if(in_array($checkPivotTable2, $this->getTables())) {
+                            $pivotTable = $checkPivotTable2;
+                        } 
+
+                        if($pivotTable != null) {
+
+                        $sourceCode->br()->lines([
+                            'public function ' . lcfirst(Str::pluralize($relatedModel)).'() ', // Множина
+                            '{',
+                        ]);
+
+                        $sourceCode->s(4)->line('return $this->belongsToMany("App\\' . $this->getAdminControllersNamespace() . 'Models\\' .$relatedModel . '", "' . $pivotTable . '");');
+
+                        $sourceCode->s(0)->line('}');
+
+                        } else {
+                            // TODO: помилка $sourceCode->s(0)->line('// bad relation belongsToMany');
+                        }
+                        
+                        // return $this->belongsToMany('App\Models\Role', 'role_user');
                     }
 
+
+                    
                 }
 
             }
-            
+
         }
 
         // Звязки:

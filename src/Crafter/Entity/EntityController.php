@@ -58,12 +58,20 @@ class EntityController extends ModelController
             return $this;
         }
         
+        // Додаю тип звязку, якщо його ще немає:
 		if(!isset($this->project['entities'][$entity]['relations'][$relation])) {
             $this->project['entities'][$entity]['relations'][$relation] = [];
         }
         
-		if(!in_array($relatedEntity, $this->project['entities'][$entity]['relations'][$relation])) {
-            $this->project['entities'][$entity]['relations'][$relation][] = $relatedEntity;
+        // Такий звязок вже встановлено, то пропускаю:
+		if(in_array($relatedEntity, $this->project['entities'][$entity]['relations'][$relation])) {
+            return $this;
+        }
+
+        $this->project['entities'][$entity]['relations'][$relation][] = $relatedEntity;
+
+        if($relation == 'belongsToMany') {
+            $this->addRelation($relatedEntity, $relation, $entity);
         }
 
         return $this;
