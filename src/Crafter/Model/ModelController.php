@@ -3,7 +3,7 @@
 namespace Salabun\Crafter\Model;
 
 use Salabun\Crafter\Route\RouteController;
-use Salabun\Crafter\Entity\EntityController;
+use Salabun\Crafter\Helpers\Str;
 use Salabun\CodeWriter;
 
 /**
@@ -65,18 +65,29 @@ class ModelController extends RouteController
                     if($relation == 'hasOne') {
 
                         $sourceCode->br()->lines([
-                            'public function ' . lcfirst(EntityController::pluralize($relatedModel)).'() ',
+                            'public function ' . lcfirst($relatedModel).'() ', // Однина
                             '{',
                         ]);
 
-                        $sourceCode->s(4)->line('return $this->hasOne("App\Role", "' . strtolower($relatedModel) . '_id", "id");');
+                        $sourceCode->s(4)->line('return $this->hasOne("App\\' . $this->getAdminControllersNamespace() . 'Models\\'.$relatedModel.'", "id", "' . Str::toSnakeCase($relatedModel) . '_id");');
                         $sourceCode->s(0)->line('}');
 
                     } else if($relation == 'hasMany') {
-                        // TODO: 
+
+                        $sourceCode->br()->lines([
+                            'public function ' . lcfirst(Str::pluralize($relatedModel)).'() ', // Множина
+                            '{',
+                        ]);
+
+                        $sourceCode->s(4)->line('return $this->hasMany("App\\' . $this->getAdminControllersNamespace() . 'Models\\'.$relatedModel.'", "id", "' . Str::toSnakeCase($relatedModel) . '_id");');
+                        $sourceCode->s(0)->line('}');
+                        
                     }
+
                 }
+
             }
+            
         }
 
         // Звязки:

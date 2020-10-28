@@ -3,7 +3,7 @@
 namespace Salabun\Crafter\Route;
 
 use Salabun\Crafter\Controller\ControllerController;
-use Salabun\Crafter\Entity\EntityController;
+use Salabun\Crafter\Helpers\Str;
 use Salabun\CodeWriter;
 
 /**
@@ -62,7 +62,7 @@ class RouteController extends ControllerController
         [
             'method' => 'search',
             'type' => 'GET',
-            'postfix' => '',
+            'postfix' => '/search',
         ],
     ];
 /*
@@ -106,7 +106,7 @@ class RouteController extends ControllerController
             // Роути:
             foreach($this->getRouteMethodsTypes() as $method) {
                 
-                $sourceCode->line("Route::" . strtolower($method['type']) . "('" . EntityController::pluralize(strtolower($entity)) . $method['postfix'] . "', '" . $this->getAdminControllersNamespace() . '\\'.$entity . "Controller@" . $method['method'] . "');");
+                $sourceCode->line("Route::" . strtolower($method['type']) . "('" . Str::pluralize(strtolower($entity)) . $method['postfix'] . "', '" . $this->getAdminControllersNamespace() . '\\'.$entity . "Controller@" . $method['method'] . "');");
 
             }
             

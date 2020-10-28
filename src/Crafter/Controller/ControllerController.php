@@ -3,7 +3,7 @@
 namespace Salabun\Crafter\Controller;
 
 use Salabun\Crafter\Project\ProjectController;
-use Salabun\Crafter\Entity\EntityController;
+use Salabun\Crafter\Helpers\Str;
 use Salabun\CodeWriter;
 
 /**
@@ -102,7 +102,7 @@ class ControllerController extends ProjectController
                     $sourceCode->lines([
                         '/**',
                         ' *  Method: ' . $method['type'],
-                        ' *  Route: ' . EntityController::pluralize(strtolower($entity)) . $method['postfix'],
+                        ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
                         ' */',
                         'public function '.$method['method'].'()',
                         '{',
@@ -135,7 +135,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . EntityController::pluralize(strtolower($entity)) . $method['postfix'],
+            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
             ' */',
             'public function '.$method['method'].'()',
             '{',
@@ -218,7 +218,7 @@ class ControllerController extends ProjectController
                     $sourceCode->lines([
                         '/**',
                         ' *  Method: ' . $method['type'],
-                        ' *  Route: ' . EntityController::pluralize(strtolower($entity)) . $method['postfix'],
+                        ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
                         ' */',
                         'public function '.$method['method'].'()',
                         '{',
@@ -251,7 +251,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . EntityController::pluralize(strtolower($entity)) . $method['postfix'],
+            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
             ' */',
             'public function '.$method['method'].'()',
             '{',
