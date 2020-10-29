@@ -35,7 +35,7 @@ class RouteController extends ControllerController
             'postfix' => '/{id}',
         ],
         [
-            'method' => 'delete',
+            'method' => 'delete', // Готово!
             'type' => 'DELETE',
             'postfix' => '/{id}',
         ],

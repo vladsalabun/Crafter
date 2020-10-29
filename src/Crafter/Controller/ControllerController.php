@@ -329,6 +329,50 @@ class ControllerController extends ProjectController
 
     
     /**
+     *   Генерую метод create:
+     */
+     public function getAdminMethodCreate($entity, $method) : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Method: ' . $method['type'],
+            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' */',
+            'public function '.$method['method'].'(Request $request)',
+            '{',
+        ])->defaultSpaces(4); 
+
+        /*
+            TODO:
+            - with relations (я можу пізніше вручну їх додати)
+            - validation
+            - try-catch
+            - single/bulk
+        */
+
+        $sourceCode->defaultSpaces(8)->lines([
+            '// TODO: validation',
+            '',
+            '$this->object = new Paragraphs;',
+            '',
+            'if($request->isJson()) {',
+            '    return response()->json("ajax", 200);',
+            '}',
+            '',
+            'return response()->json($request->all(), 200);',
+        ]);
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
+
+    /**
      *   Генерую сирці клієнтського контролера:
      */
     public function getAppCrontrollerSourceCode($entity) : string
