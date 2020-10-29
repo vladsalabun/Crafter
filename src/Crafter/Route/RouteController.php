@@ -15,17 +15,12 @@ class RouteController extends ControllerController
     protected $routeMethodsTypes = [
     
         [
-            'method' => 'list',
+            'method' => 'list', // Готово!
             'type' => 'GET',
             'route_postfix' => '',
         ],
         [
-            'method' => 'create',
-            'type' => 'POST',
-            'postfix' => '',
-        ],
-        [
-            'method' => 'read',
+            'method' => 'read',  // Готово!
             'type' => 'GET',
             'postfix' => '/{id}',
         ],
@@ -43,6 +38,11 @@ class RouteController extends ControllerController
             'method' => 'delete',
             'type' => 'DELETE',
             'postfix' => '/{id}',
+        ],
+        [
+            'method' => 'create',
+            'type' => 'POST',
+            'postfix' => '',
         ],
         [
             'method' => 'bulkUpdate',

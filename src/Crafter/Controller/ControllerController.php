@@ -84,12 +84,17 @@ class ControllerController extends ProjectController
                
             $sourceCode->line('$this->countPerPage = 10;');
             $sourceCode->line('$this->response = [')->defaultSpaces(12);
+                
                 $sourceCode->lines([
                     '"code" => 200,',
                     '"status" => "success",',
                     '"message" => "",'
                 ])->defaultSpaces(8);
+
             $sourceCode->line('];');
+
+            // Важливо! Зберігаю об'єкт для подальшої маніпуляції:
+            $sourceCode->line('$this->object = null;');
     
             $sourceCode->defaultSpaces(4)->lines([
                 '}',
@@ -181,8 +186,95 @@ class ControllerController extends ProjectController
         return $sourceCode->getCode();
     }
 
+    /**
+     *   Генерую метод read:
+     */
+     public function getAdminMethodRead($entity, $method) : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Method: ' . $method['type'],
+            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' */',
+            'public function '.$method['method'].'($id, Request $request)',
+            '{',
+        ])->defaultSpaces(4); 
 
+        /*
+            TODO:
+            - with relations (я можу пізніше вручну їх додати)
+            - where->('deleted', 0) - якщо вказано в налаштуваннях, що таблиця з softDelete
+        */
+
+        $sourceCode->defaultSpaces(8)->lines([
+            '$this->object = Paragraphs::where("id", $id)->first();',
+            '',
+            'if($this->object != null) {',
+            '    $this->response["data"] = $this->object;',
+            '    return response()->json($this->response, 200);',
+            '}',
+            '',
+            '$this->response["status"] = "error";',
+            '$this->response["message"] = "Record not found.";',
+            '',
+            'return response()->json($this->response, 404);',
+        ]);
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
     
+    /**
+     *   Генерую метод update:
+     */
+     public function getAdminMethodUpdate($entity, $method) : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Method: ' . $method['type'],
+            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' */',
+            'public function '.$method['method'].'($id, Request $request)',
+            '{',
+        ])->defaultSpaces(4); 
+
+        /*
+            TODO:
+            - with relations (я можу пізніше вручну їх додати)
+            - where->('deleted', 0) - якщо вказано в налаштуваннях, що таблиця з softDelete
+        */
+
+        $sourceCode->defaultSpaces(8)->lines([
+            '$this->object = Paragraphs::where("id", $id)->first();',
+            '',
+            'if($this->object != null) {',
+            '    $this->response["data"] = $this->object;',
+            '    $this->object->fill($request->all());',
+            '    $this->object->save();',
+            '    $this->response["message"] = "Record updated.";',
+            '    return response()->json($this->response, 200);',
+            '}',
+            '',
+            '$this->response["status"] = "error";',
+            '$this->response["message"] = "Record not found.";',
+            '',
+            'return response()->json($this->response, 404);',
+        ]);
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
     
     /**
      *   Генерую сирці клієнтського контролера:
