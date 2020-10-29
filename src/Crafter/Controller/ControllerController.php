@@ -83,7 +83,14 @@ class ControllerController extends ProjectController
             ])->defaultSpaces(8);
                
             $sourceCode->line('$this->countPerPage = 10;');
-                
+            $sourceCode->line('$this->response = [')->defaultSpaces(12);
+                $sourceCode->lines([
+                    '"code" => 200,',
+                    '"status" => "success",',
+                    '"message" => "",'
+                ])->defaultSpaces(8);
+            $sourceCode->line('];');
+    
             $sourceCode->defaultSpaces(4)->lines([
                 '}',
             ])->br();
@@ -137,13 +144,34 @@ class ControllerController extends ProjectController
             ' *  Method: ' . $method['type'],
             ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
             ' */',
-            'public function '.$method['method'].'()',
+            'public function '.$method['method'].'(Request $request)',
             '{',
         ]);
         
+
+        /*
+            TODO:
+            - with relations (я можу пізніше вручну їх додати)
+            - where->('deleted', 0) - якщо вказано в налаштуваннях, що таблиця з softDelete
+            - orderBy - тут можливі варіанти, як би з фронту їх задавати? як це можливо?
+        */
+
             $sourceCode->defaultSpaces(8)->lines([
-                '$objects = '.$entity.'::orderBy("id", "desc")->paginate($this->countPerPage);',
-                'return response()->json($objects, 200);',
+                'if($request->has("page")) {',
+                '    $objects = '.$entity.'::paginate($this->countPerPage);',
+                '    $this->response["data"] = $objects->items();',
+                '    $this->response["total"] = $objects->total();',
+                '    $this->response["current_page"] = $objects->currentPage();',
+                '    $this->response["last_page"] = $objects->lastPage();',
+                '    $this->response["per_page"] = $objects->perPage();',
+                '    $this->response["total"] = $objects->total();',
+                '',
+                '} else {',
+                '    $objects = '.$entity.'::all();',
+                '    $this->response["data"] = $objects;',
+                '}',
+                '',
+                'return response()->json($this->response, 200);',
             ]);
         
         $sourceCode->defaultSpaces(4)->lines([

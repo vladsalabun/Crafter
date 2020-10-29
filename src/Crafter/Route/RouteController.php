@@ -106,7 +106,7 @@ class RouteController extends ControllerController
             // Роути:
             foreach($this->getRouteMethodsTypes() as $method) {
                 
-                $sourceCode->line("Route::" . strtolower($method['type']) . "('" . Str::pluralize(strtolower($entity)) . $method['postfix'] . "', '" . $this->getAdminControllersNamespace() . '\\'.$entity . "Controller@" . $method['method'] . "');");
+                $sourceCode->line("Route::" . strtolower($method['type']) . "('" . $this->getEntityTable($entity) . $method['postfix'] . "', '" . $this->getAdminControllersNamespace() . '\\'.$entity . "Controller@" . $method['method'] . "');");
 
             }
             
