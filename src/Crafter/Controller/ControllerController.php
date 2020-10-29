@@ -280,6 +280,53 @@ class ControllerController extends ProjectController
         return $sourceCode->getCode();
      }
 
+    /**
+     *   Генерую метод delete:
+     */
+     public function getAdminMethodDelete($entity, $method) : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Method: ' . $method['type'],
+            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' */',
+            'public function '.$method['method'].'($id, Request $request)',
+            '{',
+        ])->defaultSpaces(4); 
+
+        /*
+            TODO:
+            - delete relations (ті звязки що знаходяться нижче)
+            - where->('deleted', 0) - якщо вказано в налаштуваннях, що таблиця з softDelete
+        */
+
+        $sourceCode->defaultSpaces(8)->lines([
+            '$this->object = Paragraphs::where("id", $id)->first();',
+            '',
+            'if($this->object != null) {',
+            '    ',
+            '    $this->object->delete();',
+            '    ',
+            '    $this->response["message"] = "Record deleted.";',
+            '    ',
+            '    return response()->json($this->response, 200);',
+            '}',
+            '',
+            '$this->response["status"] = "error";',
+            '$this->response["message"] = "Record not found.";',
+            '',
+            'return response()->json($this->response, 404);',
+        ]);
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
     
     /**
      *   Генерую сирці клієнтського контролера:
