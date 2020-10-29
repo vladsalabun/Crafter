@@ -142,6 +142,7 @@ class ModelController extends RouteController
 
 
         $sourceCode->defaultSpaces(0);
+        $sourceCode->line('');
         $sourceCode->line('}');
         
 

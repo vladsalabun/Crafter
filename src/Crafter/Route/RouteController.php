@@ -25,7 +25,7 @@ class RouteController extends ControllerController
             'postfix' => '/{id}',
         ],
         [
-            'method' => 'update',
+            'method' => 'update', // Готово!
             'type' => 'PUT',
             'postfix' => '/{id}',
         ],
