@@ -131,6 +131,9 @@ class ControllerController extends ProjectController
 
             }
 
+            $sourceCode->defaultSpaces(4)->line($this->getAdminRecordCreateMethod())->br();
+
+
         $sourceCode->defaultSpaces(0)->br()
         ->line('}');
         
@@ -347,21 +350,23 @@ class ControllerController extends ProjectController
         /*
             TODO:
             - with relations (я можу пізніше вручну їх додати)
-            - validation
+            - validation - як валідувати для масових запитів?
             - try-catch
             - single/bulk
         */
 
         $sourceCode->defaultSpaces(8)->lines([
-            '// TODO: validation',
-            '',
-            '$this->object = new Paragraphs;',
-            '',
             'if($request->isJson()) {',
-            '    return response()->json("ajax", 200);',
+            '    // TODO: validation',
+            '    return response()->json(["Not implemented"], 501);',
             '}',
             '',
-            'return response()->json($request->all(), 200);',
+            '// TODO: validation',
+            '$this->createObject($request->toArray());',
+            '$this->response["data"] = $this->object;',
+            '$this->response["message"] = "Record created.";',
+            '',
+            'return response()->json($this->response, 200);',
         ]);
 
         $sourceCode->defaultSpaces(4)->lines([
@@ -371,6 +376,46 @@ class ControllerController extends ProjectController
         return $sourceCode->getCode();
      }
 
+
+    /**
+     *   Генерую метод створення обєкту:
+     */
+     public function getAdminRecordCreateMethod() : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Create record:',
+            ' */',
+            'public function createObject($validatedData)',
+            '{',
+        ])->defaultSpaces(4); 
+
+        /*
+            TODO:
+        */
+
+        $sourceCode->defaultSpaces(8)->lines([
+            '$this->object = new Paragraphs;',
+            '$this->object->fill(',
+            '    collect($validatedData)->only(',
+            '        $this->object->getFillable()',
+            '    )->toArray()',
+            ');',
+            '',
+            '$this->object->save();',
+            '$this->object->refresh();',
+        ]);
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
+     
 
     /**
      *   Генерую сирці клієнтського контролера:
