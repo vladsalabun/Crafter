@@ -55,7 +55,7 @@ class RouteController extends ControllerController
             'postfix' => '',
         ],
         [
-            'method' => 'bulkDelete',
+            'method' => 'bulkDelete',  // Готово!
             'type' => 'DELETE',
             'postfix' => '',
         ],
