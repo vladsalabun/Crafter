@@ -132,6 +132,7 @@ class ControllerController extends ProjectController
             }
 
             $sourceCode->defaultSpaces(4)->line($this->getAdminRecordCreateMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminRecordUpdateMethod())->br();
 
 
         $sourceCode->defaultSpaces(0)->br()
@@ -358,11 +359,20 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(8)->lines([
             'if($request->isJson()) {',
             '    // TODO: validation',
-            '    return response()->json(["Not implemented"], 501);',
+            '    $requestArray = $request->input();',
+            '',
+            '    foreach($requestArray as $validatedData) {',
+            '        $this->createRecord($validatedData);',
+            '        $this->response["data"][] = $this->object;',
+            '    }',
+            '',
+            '    $this->response["message"] = "Records created.";',
+            '',
+            '    return response()->json($this->response, 200);',
             '}',
             '',
             '// TODO: validation',
-            '$this->createObject($request->toArray());',
+            '$this->createRecord($request->toArray());',
             '$this->response["data"] = $this->object;',
             '$this->response["message"] = "Record created.";',
             '',
@@ -388,7 +398,7 @@ class ControllerController extends ProjectController
             '/**',
             ' *  Create record:',
             ' */',
-            'public function createObject($validatedData)',
+            'public function createRecord($validatedData)',
             '{',
         ])->defaultSpaces(4); 
 
@@ -415,7 +425,118 @@ class ControllerController extends ProjectController
         return $sourceCode->getCode();
      }
 
+
      
+    /**
+     *   Генерую метод оновлення обєкту:
+     */
+     public function getAdminRecordUpdateMethod() : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Update record:',
+            ' */',
+            'public function updateRecord($validatedData)',
+            '{',
+        ])->defaultSpaces(4); 
+
+        /*
+            TODO:
+        */
+
+        $sourceCode->defaultSpaces(8)->lines([
+            '$this->object = Paragraphs::where("id", $validatedData["id"])->first();',
+            '',
+            'if($this->object == null) {',
+            '    return false;',
+            '}',
+            '',
+            '$this->object->fill(',
+            '    collect($validatedData)->only(',
+            '        $this->object->getFillable()',
+            '    )->toArray()',
+            ');',
+            '',
+            '$this->object->save();',
+            '$this->object->refresh();',
+            '' ,   
+            'return true;',
+        ]);
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
+    /**
+     *   Генерую метод bulk update:
+     */
+     public function getAdminMethodBulkUpdate($entity, $method) : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Method: ' . $method['type'],
+            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' */',
+            'public function '.$method['method'].'(Request $request)',
+            '{',
+        ])->defaultSpaces(4); 
+
+        /*
+            TODO:
+            - with relations (я можу пізніше вручну їх додати)
+            - where->('deleted', 0) - якщо вказано в налаштуваннях, що таблиця з softDelete
+        */
+
+        $sourceCode->defaultSpaces(8)->lines([
+            'if(!$request->isJson()) {',
+            '',
+            '    $this->response["status"] = "error";',
+            '    $this->response["message"] = "Bad Request. Expects dataType: \"json\".";',
+            '',
+            '    return response()->json($this->response, 400);',
+            '}',
+            '',
+            '// TODO: validation',
+            '$requestArray = $request->input();',
+            '',
+            'foreach($requestArray as $validatedData) {',
+            '    if($this->updateRecord($validatedData)) {',
+            '        $this->response["data"][] = $this->object;',
+            '    }',
+            '}',
+            '',
+            '$this->response["message"] = "Records updated.";',
+            '',
+            'return response()->json($this->response, 200);',
+        ]);
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      *   Генерую сирці клієнтського контролера:

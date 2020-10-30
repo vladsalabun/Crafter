@@ -40,7 +40,7 @@ class RouteController extends ControllerController
             'postfix' => '/{id}',
         ],
         [
-            'method' => 'create',
+            'method' => 'create',  // Готово!
             'type' => 'POST',
             'postfix' => '',
         ],
