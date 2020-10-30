@@ -12,6 +12,16 @@ use Salabun\CodeWriter;
 class ControllerController extends ProjectController
 { 
 
+/*
+    TODO: 
+    - Помістити унаслідувати адмінські і клієнтські контроллери, бо тут вже забагато їх
+    - Зробити ендпоінти для меню (розрахунок кількості дописів з кешем, щоб фоном перераховувалось) 
+    - Перенести в свій голвний контроллер ($this->response) який наслідує основний контроллер 
+*/
+
+
+
+
     /**
      *  Префікси папок:
      */
@@ -131,8 +141,22 @@ class ControllerController extends ProjectController
 
             }
 
+
+            // Create:
+            $sourceCode->defaultSpaces(4)->line($this->getAdminBeforeCreateRecordMethod())->br();
             $sourceCode->defaultSpaces(4)->line($this->getAdminRecordCreateMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminAfterCreateRecordMethod())->br();
+
+            // Update:
+            $sourceCode->defaultSpaces(4)->line($this->getAdminBeforeRecordUpdatedMethod())->br();
             $sourceCode->defaultSpaces(4)->line($this->getAdminRecordUpdateMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminAfterRecordUpdatedMethod())->br();
+
+            // Delete:
+            $sourceCode->defaultSpaces(4)->line($this->getAdminBeforeRecordDeletedMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminRecordDeleteMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminAfterRecordDeletedMethod())->br();
+
 
 
         $sourceCode->defaultSpaces(0)->br()
@@ -261,10 +285,10 @@ class ControllerController extends ProjectController
             'if($this->object != null) {',
             '    ',
             '    // TODO: validation',
-            '    ',
+            '    $this->beforeUpdateRecord();',
             '    $this->object->fill($request->only($this->object->getFillable()));',
             '    $this->object->save();',
-            '    ',
+            '    $this->afterUpdateRecord();',
             '    $this->response["data"] = $this->object;',
             '    $this->response["message"] = "Record updated.";',
             '    ',
@@ -310,9 +334,9 @@ class ControllerController extends ProjectController
             '$this->object = Paragraphs::where("id", $id)->first();',
             '',
             'if($this->object != null) {',
-            '    ',
+            '    $this->beforeRecordDeleted();',
             '    $this->object->delete();',
-            '    ',
+            '    $this->afterRecordDeleted();',
             '    $this->response["message"] = "Record deleted.";',
             '    ',
             '    return response()->json($this->response, 200);',
@@ -362,7 +386,9 @@ class ControllerController extends ProjectController
             '    $requestArray = $request->input();',
             '',
             '    foreach($requestArray as $validatedData) {',
+            '        $this->beforeCreateRecord();',
             '        $this->createRecord($validatedData);',
+            '        $this->afterCreateRecord();',
             '        $this->response["data"][] = $this->object;',
             '    }',
             '',
@@ -372,7 +398,9 @@ class ControllerController extends ProjectController
             '}',
             '',
             '// TODO: validation',
+            '$this->beforeCreateRecord();',
             '$this->createRecord($request->toArray());',
+            '$this->afterCreateRecord();',
             '$this->response["data"] = $this->object;',
             '$this->response["message"] = "Record created.";',
             '',
@@ -508,7 +536,9 @@ class ControllerController extends ProjectController
             '',
             'foreach($requestArray as $validatedData) {',
             '    if($this->updateRecord($validatedData)) {',
+            '        $this->beforeUpdateRecord();',
             '        $this->response["data"][] = $this->object;',
+            '        $this->afterUpdateRecord();',
             '    }',
             '}',
             '',
@@ -523,6 +553,245 @@ class ControllerController extends ProjectController
 
         return $sourceCode->getCode();
      }
+
+
+    /**
+     *   Генерую метод bulk delete:
+     */
+     public function getAdminMethodBulkDelete($entity, $method) : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Method: ' . $method['type'],
+            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' */',
+            'public function '.$method['method'].'(Request $request)',
+            '{',
+        ])->defaultSpaces(4); 
+
+        /*
+            TODO:
+            '    $this->beforeRecordDeleted();',
+            '    $this->object->delete();',
+            '    $this->afterRecordDeleted();',
+        */
+
+
+        $sourceCode->defaultSpaces(8)->lines([
+            'if(!$request->isJson()) {',
+            '',
+            '    $this->response["status"] = "error";',
+            '    $this->response["message"] = "Bad Request. Expects dataType: \"json\".";',
+            '',
+            '    return response()->json($this->response, 400);',
+            '}',
+            '',
+            '// TODO: validation',
+            '$requestArray = $request->input();',
+            '',
+            'foreach($requestArray as $validatedData) {',
+            '    $deletedId = $this->deleteRecord($validatedData)',
+            '    if($id) {',
+            '        $this->beforeRecordDeleted();',
+            '        $this->response["data"][] = $deletedId;',
+            '        $this->afterRecordDeleted();',
+            '    }',
+            '}',
+            '',
+            '$this->response["message"] = "Records updated.";',
+            '',
+            'return response()->json($this->response, 200);',
+        ]);
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
+
+    /**
+     *   Генерую метод видалення обєкту:
+     */
+     public function getAdminRecordDeleteMethod() : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Delete record:',
+            ' */',
+            'public function deleteRecord($validatedData)',
+            '{',
+        ])->defaultSpaces(4); 
+
+        /*
+            TODO:
+        */
+
+        $sourceCode->defaultSpaces(8)->lines([
+            '$this->object = Paragraphs::where("id", $validatedData["id"])->first();',
+            '',
+            'if($this->object == null) {',
+            '    return false;',
+            '}',
+            '',
+            '$deletedId = $this->object->id;',
+            '$this->object->delete();',
+            '' ,   
+            'return $deletedId;',
+        ]);
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
+
+    /**
+     *   Генерую хук який спрацьовує перед видаленням допису:
+     */
+     public function getAdminBeforeRecordDeletedMethod() : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Hook: beforeRecordDeleted ',
+            ' */',
+            'public function beforeRecordDeleted()',
+            '{',
+        ])->defaultSpaces(4); 
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
+    /**
+     *   Генерую хук який спрацьовує після видалення допису:
+     */
+     public function getAdminAfterRecordDeletedMethod() : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Hook: afterRecordDeleted ',
+            ' */',
+            'public function afterRecordDeleted()',
+            '{',
+        ])->defaultSpaces(4); 
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
+
+    /**
+     *   Генерую хук який спрацьовує перед створенням допису:
+     */
+     public function getAdminBeforeCreateRecordMethod() : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Hook: beforeCreateRecord() ',
+            ' */',
+            'public function beforeCreateRecord()',
+            '{',
+        ])->defaultSpaces(4); 
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
+    /**
+     *   Генерую хук який спрацьовує після створення допису:
+     */
+     public function getAdminAfterCreateRecordMethod() : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Hook: afterCreateRecord ',
+            ' */',
+            'public function afterCreateRecord()',
+            '{',
+        ])->defaultSpaces(4); 
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
+    /**
+     *   Генерую хук який спрацьовує перед оновленням допису:
+     */
+     public function getAdminBeforeRecordUpdatedMethod() : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Hook: beforeUpdateRecord ',
+            ' */',
+            'public function beforeUpdateRecord()',
+            '{',
+        ])->defaultSpaces(4); 
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
+    /**
+     *   Генерую хук який спрацьовує після видалення допису:
+     */
+     public function getAdminAfterRecordUpdatedMethod() : string
+     {
+        $sourceCode = new CodeWriter;
+        
+        $sourceCode->defaultSpaces(4)->lines([
+            '/**',
+            ' *  Hook: afterUpdateRecord ',
+            ' */',
+            'public function afterUpdateRecord()',
+            '{',
+        ])->defaultSpaces(4); 
+
+        $sourceCode->defaultSpaces(4)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode();
+     }
+
+
+
+
+
+
+
 
 
 

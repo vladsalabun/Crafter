@@ -45,7 +45,7 @@ class RouteController extends ControllerController
             'postfix' => '',
         ],
         [
-            'method' => 'bulkUpdate',
+            'method' => 'bulkUpdate',  // Готово!
             'type' => 'PUT',
             'postfix' => '',
         ],
