@@ -36,6 +36,7 @@ class EntityController extends ModelController
         $this->project['entities'][$entity] = [
             'relations' => [],
             'is_personal_data' => false,
+            'is_file' => false,
             'table' => $table
         ];
         
@@ -125,6 +126,22 @@ class EntityController extends ModelController
       public function getEntityRelations($entity)
       {
           return $this->project['entities'][$entity]['relations'];
+      }
+
+     /** 
+      *  Дізнатись чи ця сутність відповідає за файл:
+      */
+      public function isFileEntity($entity)
+      {
+          return $this->project['entities'][$entity]['is_file'];
+      }
+      
+     /** 
+      *  Позначити, що ця сутність відповідає за файл:
+      */
+      public function setAsFileEntity($entity)
+      {
+          return $this->project['entities'][$entity]['is_file'] = true;
       }
 
 }

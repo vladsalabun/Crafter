@@ -50,6 +50,94 @@ class ControllerController extends ProjectController
         return $this;
     }
  
+
+
+    /**
+     *   Генерую сирці головного адмінського контролера:
+     */
+     public function getAdminMainCrontrollerSourceCode() : string
+     {
+        $sourceCode = new CodeWriter;
+
+        // На початку кожного файлу додаю свої копірайти:
+        $sourceCode->line($this->getCopyRights())->br();
+        $sourceCode->lines([
+            'namespace App\Http\Controllers\\' . $this->getAdminControllersNamespace() . ';',
+            '',
+            'use Illuminate\Foundation\Bus\DispatchesJobs;',
+            'use Illuminate\Routing\Controller;',
+            'use Illuminate\Foundation\Validation\ValidatesRequests;',
+            'use Illuminate\Foundation\Auth\Access\AuthorizesRequests;',
+            'use Illuminate\Support\Str;',
+            'use Auth;',
+            'use DB;',
+            'use File;',
+            'use Log;',
+            'use Storage;',
+            'use URL;',
+            'use Carbon\Carbon;',
+            '',
+            'class AdminController extends Controller',
+            '{',
+            '    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;',
+        ])->br();
+       
+
+            $sourceCode->defaultSpaces(4);
+            $sourceCode->lines([
+                'public $response = [',
+                '    "code" => 200,',
+                '    "status" => "success",',
+                '    "message" => "",',
+                '];',
+                '',
+                'public $countPerPage = 10;',
+                '',
+                '/**',
+                ' *  Constructor:',
+                ' */',
+                'public function __construct()',
+                '{',
+            ])->defaultSpaces(8);
+
+            $sourceCode->defaultSpaces(4)->lines([
+                '}',
+            ])->br();
+        
+            $sourceCode->lines([
+                'public function storeFile($file, $path)',
+                '{',
+                '   $ext = $file->getClientOriginalExtension();',
+                '   $fileName = Str::random(16) . "." . $ext;',
+                '   Storage::disk("public")->putFileAs($path, $file, $fileName);',
+                '',
+                '   return [',
+                '       "path" => $path,',   
+                '       "file" => $fileName,',  
+                '       "ext" => $ext,',  
+                '       "size" => 0,',  
+                '   ];',
+                '}',
+            ])->br();
+
+            $sourceCode->lines([
+                'public function deleteFile($path)',
+                '{',
+                '   Storage::disk("public")->delete($path);',
+                '}',
+            ])->br();        
+        
+        $sourceCode->defaultSpaces(0)->lines([
+            '}',
+        ])->br();
+
+        return $sourceCode->getCode(); 
+     }
+    
+
+
+
+
     /**
      *   Генерую сирці адмінського контролера:
      */
@@ -62,7 +150,6 @@ class ControllerController extends ProjectController
         $sourceCode->lines([
             'namespace App\Http\Controllers\\' . $this->getAdminControllersNamespace() . ';',
             '',
-            'use App\Http\Controllers\Controller;',
             'use Illuminate\Http\Request;',
             'use Illuminate\Support\Str;',
             'use Illuminate\Support\Facades\Input;',
@@ -79,7 +166,7 @@ class ControllerController extends ProjectController
         ])->br();
         
         $sourceCode->lines([
-            'class ' . $entity . 'Controller extends Controller',
+            'class ' . $entity . 'Controller extends AdminController',
             '{',
         ])->br();
 
@@ -88,24 +175,19 @@ class ControllerController extends ProjectController
                 '/**',
                 ' *  Constructor:',
                 ' */',
-                'public function __construct()',
+                'public function __construct(Request $request)',
                 '{',
             ])->defaultSpaces(8);
                
-            $sourceCode->line('$this->countPerPage = 10;');
-            $sourceCode->line('$this->response = [')->defaultSpaces(12);
-                
-                $sourceCode->lines([
-                    '"code" => 200,',
-                    '"status" => "success",',
-                    '"message" => "",'
-                ])->defaultSpaces(8);
-
-            $sourceCode->line('];');
+            $sourceCode->line('$this->request = $request;');
 
             // Важливо! Зберігаю об'єкт для подальшої маніпуляції:
             $sourceCode->line('$this->object = null;');
     
+            if($this->isFileEntity($entity)) {   
+                $sourceCode->line('$this->path = "storage/' . $this->getEntityTable($entity) . '";');
+            }
+
             $sourceCode->defaultSpaces(4)->lines([
                 '}',
             ])->br();
@@ -143,19 +225,19 @@ class ControllerController extends ProjectController
 
 
             // Create:
-            $sourceCode->defaultSpaces(4)->line($this->getAdminBeforeCreateRecordMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminBeforeCreateRecordMethod($entity))->br();
             $sourceCode->defaultSpaces(4)->line($this->getAdminRecordCreateMethod())->br();
-            $sourceCode->defaultSpaces(4)->line($this->getAdminAfterCreateRecordMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminAfterCreateRecordMethod($entity))->br();
 
             // Update:
-            $sourceCode->defaultSpaces(4)->line($this->getAdminBeforeRecordUpdatedMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminBeforeRecordUpdatedMethod($entity))->br();
             $sourceCode->defaultSpaces(4)->line($this->getAdminRecordUpdateMethod())->br();
-            $sourceCode->defaultSpaces(4)->line($this->getAdminAfterRecordUpdatedMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminAfterRecordUpdatedMethod($entity))->br();
 
             // Delete:
-            $sourceCode->defaultSpaces(4)->line($this->getAdminBeforeRecordDeletedMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminBeforeRecordDeletedMethod($entity))->br();
             $sourceCode->defaultSpaces(4)->line($this->getAdminRecordDeleteMethod())->br();
-            $sourceCode->defaultSpaces(4)->line($this->getAdminAfterRecordDeletedMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminAfterRecordDeletedMethod($entity))->br();
 
 
 
@@ -177,7 +259,7 @@ class ControllerController extends ProjectController
             ' *  Method: ' . $method['type'],
             ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
             ' */',
-            'public function '.$method['method'].'(Request $request)',
+            'public function '.$method['method'].'()',
             '{',
         ]);
         
@@ -190,7 +272,7 @@ class ControllerController extends ProjectController
         */
 
             $sourceCode->defaultSpaces(8)->lines([
-                'if($request->has("page")) {',
+                'if($this->request->has("page")) {',
                 '    $objects = '.$entity.'::paginate($this->countPerPage);',
                 '    $this->response["data"] = $objects->items();',
                 '    $this->response["total"] = $objects->total();',
@@ -226,7 +308,7 @@ class ControllerController extends ProjectController
             ' *  Method: ' . $method['type'],
             ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
             ' */',
-            'public function '.$method['method'].'($id, Request $request)',
+            'public function '.$method['method'].'($id)',
             '{',
         ])->defaultSpaces(4); 
 
@@ -269,7 +351,7 @@ class ControllerController extends ProjectController
             ' *  Method: ' . $method['type'],
             ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
             ' */',
-            'public function '.$method['method'].'($id, Request $request)',
+            'public function '.$method['method'].'($id)',
             '{',
         ])->defaultSpaces(4); 
 
@@ -286,7 +368,7 @@ class ControllerController extends ProjectController
             '    ',
             '    // TODO: validation',
             '    $this->beforeUpdateRecord();',
-            '    $this->object->fill($request->only($this->object->getFillable()));',
+            '    $this->object->fill($this->request->only($this->object->getFillable()));',
             '    $this->object->save();',
             '    $this->afterUpdateRecord();',
             '    $this->response["data"] = $this->object;',
@@ -320,7 +402,7 @@ class ControllerController extends ProjectController
             ' *  Method: ' . $method['type'],
             ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
             ' */',
-            'public function '.$method['method'].'($id, Request $request)',
+            'public function '.$method['method'].'($id)',
             '{',
         ])->defaultSpaces(4); 
 
@@ -368,7 +450,7 @@ class ControllerController extends ProjectController
             ' *  Method: ' . $method['type'],
             ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
             ' */',
-            'public function '.$method['method'].'(Request $request)',
+            'public function '.$method['method'].'()',
             '{',
         ])->defaultSpaces(4); 
 
@@ -381,9 +463,9 @@ class ControllerController extends ProjectController
         */
 
         $sourceCode->defaultSpaces(8)->lines([
-            'if($request->isJson()) {',
+            'if($this->request->isJson()) {',
             '    // TODO: validation',
-            '    $requestArray = $request->input();',
+            '    $requestArray = $this->request->input();',
             '',
             '    foreach($requestArray as $validatedData) {',
             '        $this->beforeCreateRecord();',
@@ -399,12 +481,17 @@ class ControllerController extends ProjectController
             '',
             '// TODO: validation',
             '$this->beforeCreateRecord();',
-            '$this->createRecord($request->toArray());',
-            '$this->afterCreateRecord();',
-            '$this->response["data"] = $this->object;',
-            '$this->response["message"] = "Record created.";',
+            'if($this->createRecord($this->request->toArray())) {',
             '',
-            'return response()->json($this->response, 200);',
+            '    $this->afterCreateRecord();',
+            '    $this->response["data"] = $this->object;',
+            '    $this->response["message"] = "Record created.";',
+            '',
+            '    return response()->json($this->response, 200);',
+            '}',
+            '',
+            '$this->response["message"] = "Internal server error. Cannot create record.";',
+            'return response()->json($this->response, 500);',
         ]);
 
         $sourceCode->defaultSpaces(4)->lines([
@@ -442,8 +529,14 @@ class ControllerController extends ProjectController
             '    )->toArray()',
             ');',
             '',
-            '$this->object->save();',
+            'try {',
+            '    $this->object->save();',
+            '} catch (\Throwable $th) {',
+            '    return false;',
+            '}',
+            '',
             '$this->object->refresh();',
+            'return true;',
         ]);
 
         $sourceCode->defaultSpaces(4)->lines([
@@ -512,7 +605,7 @@ class ControllerController extends ProjectController
             ' *  Method: ' . $method['type'],
             ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
             ' */',
-            'public function '.$method['method'].'(Request $request)',
+            'public function '.$method['method'].'()',
             '{',
         ])->defaultSpaces(4); 
 
@@ -523,7 +616,7 @@ class ControllerController extends ProjectController
         */
 
         $sourceCode->defaultSpaces(8)->lines([
-            'if(!$request->isJson()) {',
+            'if(!$this->request->isJson()) {',
             '',
             '    $this->response["status"] = "error";',
             '    $this->response["message"] = "Bad Request. Expects dataType: \"json\".";',
@@ -532,7 +625,7 @@ class ControllerController extends ProjectController
             '}',
             '',
             '// TODO: validation',
-            '$requestArray = $request->input();',
+            '$requestArray = $this->request->input();',
             '',
             'foreach($requestArray as $validatedData) {',
             '    if($this->updateRecord($validatedData)) {',
@@ -567,7 +660,7 @@ class ControllerController extends ProjectController
             ' *  Method: ' . $method['type'],
             ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
             ' */',
-            'public function '.$method['method'].'(Request $request)',
+            'public function '.$method['method'].'()',
             '{',
         ])->defaultSpaces(4); 
 
@@ -580,7 +673,7 @@ class ControllerController extends ProjectController
 
 
         $sourceCode->defaultSpaces(8)->lines([
-            'if(!$request->isJson()) {',
+            'if(!$this->request->isJson()) {',
             '',
             '    $this->response["status"] = "error";',
             '    $this->response["message"] = "Bad Request. Expects dataType: \"json\".";',
@@ -589,7 +682,7 @@ class ControllerController extends ProjectController
             '}',
             '',
             '// TODO: validation',
-            '$requestArray = $request->input();',
+            '$requestArray = $this->request->input();',
             '',
             'foreach($requestArray as $validatedData) {',
             '    $deletedId = $this->deleteRecord($validatedData);',
@@ -657,17 +750,26 @@ class ControllerController extends ProjectController
     /**
      *   Генерую хук який спрацьовує перед видаленням допису:
      */
-     public function getAdminBeforeRecordDeletedMethod() : string
+     public function getAdminBeforeRecordDeletedMethod($entity) : string
      {
         $sourceCode = new CodeWriter;
         
+
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Hook: beforeRecordDeleted ',
             ' */',
             'public function beforeRecordDeleted()',
             '{',
-        ])->defaultSpaces(4); 
+        ])->defaultSpaces(8); 
+
+
+        // Якщо ця сутність відповідає за файл, то додаю метод видалення файлу перед видаленням допису:
+        if($this->isFileEntity($entity)) {
+            $sourceCode->lines([
+                '$this->deleteFile($this->object->original);',
+            ]);
+        }
 
         $sourceCode->defaultSpaces(4)->lines([
             '}',
@@ -679,7 +781,7 @@ class ControllerController extends ProjectController
     /**
      *   Генерую хук який спрацьовує після видалення допису:
      */
-     public function getAdminAfterRecordDeletedMethod() : string
+     public function getAdminAfterRecordDeletedMethod($entity) : string
      {
         $sourceCode = new CodeWriter;
         
@@ -702,7 +804,7 @@ class ControllerController extends ProjectController
     /**
      *   Генерую хук який спрацьовує перед створенням допису:
      */
-     public function getAdminBeforeCreateRecordMethod() : string
+     public function getAdminBeforeCreateRecordMethod($entity) : string
      {
         $sourceCode = new CodeWriter;
         
@@ -712,7 +814,7 @@ class ControllerController extends ProjectController
             ' */',
             'public function beforeCreateRecord()',
             '{',
-        ])->defaultSpaces(4); 
+        ])->defaultSpaces(8); 
 
         $sourceCode->defaultSpaces(4)->lines([
             '}',
@@ -724,7 +826,7 @@ class ControllerController extends ProjectController
     /**
      *   Генерую хук який спрацьовує після створення допису:
      */
-     public function getAdminAfterCreateRecordMethod() : string
+     public function getAdminAfterCreateRecordMethod($entity) : string
      {
         $sourceCode = new CodeWriter;
         
@@ -734,7 +836,16 @@ class ControllerController extends ProjectController
             ' */',
             'public function afterCreateRecord()',
             '{',
-        ])->defaultSpaces(4); 
+        ])->defaultSpaces(8); 
+
+        // Якщо ця сутність відповідає за файл, то додаю метод збереження файлу після створення допису:
+        if($this->isFileEntity($entity)) {
+            $sourceCode->lines([
+                'if ($this->request->hasFile("file")) {',
+                '    $this->storeFile($this->request->file("file"), $this->path . "/" . $this->object->user_id);',
+                '}',
+            ]);
+        }
 
         $sourceCode->defaultSpaces(4)->lines([
             '}',
@@ -746,7 +857,7 @@ class ControllerController extends ProjectController
     /**
      *   Генерую хук який спрацьовує перед оновленням допису:
      */
-     public function getAdminBeforeRecordUpdatedMethod() : string
+     public function getAdminBeforeRecordUpdatedMethod($entity) : string
      {
         $sourceCode = new CodeWriter;
         
@@ -768,7 +879,7 @@ class ControllerController extends ProjectController
     /**
      *   Генерую хук який спрацьовує після видалення допису:
      */
-     public function getAdminAfterRecordUpdatedMethod() : string
+     public function getAdminAfterRecordUpdatedMethod($entity) : string
      {
         $sourceCode = new CodeWriter;
         
@@ -820,7 +931,6 @@ class ControllerController extends ProjectController
         $sourceCode->lines([
             'namespace App\Http\Controllers\\' . $this->getAppControllersNamespace() . ';',
             '',
-            'use App\Http\Controllers\Controller;',
             'use Illuminate\Http\Request;',
             'use Illuminate\Support\Str;',
             'use Illuminate\Support\Facades\Input;',
@@ -837,7 +947,7 @@ class ControllerController extends ProjectController
         ])->br();
         
         $sourceCode->lines([
-            'class ' . $entity . 'Controller extends Controller',
+            'class ' . $entity . 'Controller extends AppController',
             '{',
         ])->br();
 
