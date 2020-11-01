@@ -184,6 +184,7 @@ class ControllerController extends ProjectController
             // Важливо! Зберігаю об'єкт для подальшої маніпуляції:
             $sourceCode->line('$this->object = null;');
     
+
             if($this->isFileEntity($entity)) {   
                 $sourceCode->line('$this->path = "storage/' . $this->getEntityTable($entity) . '";');
             }
@@ -206,7 +207,7 @@ class ControllerController extends ProjectController
                     $sourceCode->lines([
                         '/**',
                         ' *  Method: ' . $method['type'],
-                        ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+                        ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
                         ' */',
                         'public function '.$method['method'].'()',
                         '{',
@@ -226,17 +227,17 @@ class ControllerController extends ProjectController
 
             // Create:
             $sourceCode->defaultSpaces(4)->line($this->getAdminBeforeCreateRecordMethod($entity))->br();
-            $sourceCode->defaultSpaces(4)->line($this->getAdminRecordCreateMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminRecordCreateMethod($entity))->br();
             $sourceCode->defaultSpaces(4)->line($this->getAdminAfterCreateRecordMethod($entity))->br();
 
             // Update:
             $sourceCode->defaultSpaces(4)->line($this->getAdminBeforeRecordUpdatedMethod($entity))->br();
-            $sourceCode->defaultSpaces(4)->line($this->getAdminRecordUpdateMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminRecordUpdateMethod($entity))->br();
             $sourceCode->defaultSpaces(4)->line($this->getAdminAfterRecordUpdatedMethod($entity))->br();
 
             // Delete:
             $sourceCode->defaultSpaces(4)->line($this->getAdminBeforeRecordDeletedMethod($entity))->br();
-            $sourceCode->defaultSpaces(4)->line($this->getAdminRecordDeleteMethod())->br();
+            $sourceCode->defaultSpaces(4)->line($this->getAdminRecordDeleteMethod($entity))->br();
             $sourceCode->defaultSpaces(4)->line($this->getAdminAfterRecordDeletedMethod($entity))->br();
 
 
@@ -257,7 +258,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
             ' */',
             'public function '.$method['method'].'()',
             '{',
@@ -306,7 +307,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
             ' */',
             'public function '.$method['method'].'($id)',
             '{',
@@ -319,7 +320,7 @@ class ControllerController extends ProjectController
         */
 
         $sourceCode->defaultSpaces(8)->lines([
-            '$this->object = Paragraphs::where("id", $id)->first();',
+            '$this->object = ' . $entity . '::where("id", $id)->first();',
             '',
             'if($this->object != null) {',
             '    $this->response["data"] = $this->object;',
@@ -349,7 +350,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
             ' */',
             'public function '.$method['method'].'($id)',
             '{',
@@ -362,7 +363,7 @@ class ControllerController extends ProjectController
         */
 
         $sourceCode->defaultSpaces(8)->lines([
-            '$this->object = Paragraphs::where("id", $id)->first();',
+            '$this->object = ' . $entity . '::where("id", $id)->first();',
             '',
             'if($this->object != null) {',
             '    ',
@@ -400,7 +401,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
             ' */',
             'public function '.$method['method'].'($id)',
             '{',
@@ -413,7 +414,7 @@ class ControllerController extends ProjectController
         */
 
         $sourceCode->defaultSpaces(8)->lines([
-            '$this->object = Paragraphs::where("id", $id)->first();',
+            '$this->object = ' . $entity . '::where("id", $id)->first();',
             '',
             'if($this->object != null) {',
             '    $this->beforeRecordDeleted();',
@@ -448,7 +449,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
             ' */',
             'public function '.$method['method'].'()',
             '{',
@@ -494,6 +495,9 @@ class ControllerController extends ProjectController
             'return response()->json($this->response, 500);',
         ]);
 
+        // TODO: if($this->createRecord($this->request->toArray())) { - тут якщо не вдалось створити допис, то треба зловити помилку
+
+
         $sourceCode->defaultSpaces(4)->lines([
             '}',
         ])->br();
@@ -505,7 +509,7 @@ class ControllerController extends ProjectController
     /**
      *   Генерую метод створення обєкту:
      */
-     public function getAdminRecordCreateMethod() : string
+     public function getAdminRecordCreateMethod($entity) : string
      {
         $sourceCode = new CodeWriter;
         
@@ -522,7 +526,7 @@ class ControllerController extends ProjectController
         */
 
         $sourceCode->defaultSpaces(8)->lines([
-            '$this->object = new Paragraphs;',
+            '$this->object = new ' . $entity . ';',
             '$this->object->fill(',
             '    collect($validatedData)->only(',
             '        $this->object->getFillable()',
@@ -551,7 +555,7 @@ class ControllerController extends ProjectController
     /**
      *   Генерую метод оновлення обєкту:
      */
-     public function getAdminRecordUpdateMethod() : string
+     public function getAdminRecordUpdateMethod($entity) : string
      {
         $sourceCode = new CodeWriter;
         
@@ -568,7 +572,7 @@ class ControllerController extends ProjectController
         */
 
         $sourceCode->defaultSpaces(8)->lines([
-            '$this->object = Paragraphs::where("id", $validatedData["id"])->first();',
+            '$this->object = ' . $entity . '::where("id", $validatedData["id"])->first();',
             '',
             'if($this->object == null) {',
             '    return false;',
@@ -603,7 +607,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
             ' */',
             'public function '.$method['method'].'()',
             '{',
@@ -658,7 +662,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
             ' */',
             'public function '.$method['method'].'()',
             '{',
@@ -708,7 +712,7 @@ class ControllerController extends ProjectController
     /**
      *   Генерую метод видалення обєкту:
      */
-     public function getAdminRecordDeleteMethod() : string
+     public function getAdminRecordDeleteMethod($entity) : string
      {
         $sourceCode = new CodeWriter;
         
@@ -725,7 +729,7 @@ class ControllerController extends ProjectController
         */
 
         $sourceCode->defaultSpaces(8)->lines([
-            '$this->object = Paragraphs::where("id", $validatedData["id"])->first();',
+            '$this->object = ' . $entity . '::where("id", $validatedData["id"])->first();',
             '',
             'if($this->object == null) {',
             '    return false;',
@@ -842,7 +846,12 @@ class ControllerController extends ProjectController
         if($this->isFileEntity($entity)) {
             $sourceCode->lines([
                 'if ($this->request->hasFile("file")) {',
-                '    $this->storeFile($this->request->file("file"), $this->path . "/" . $this->object->user_id);',
+                '    $savedFile = $this->storeFile($this->request->file("file"), $this->path . "/" . $this->object->user_id);',
+                '    ',
+                '    $this->object->original = $this->path . "/" . $this->object->user_id . "/" . $savedFile["file"];',
+                '    $this->object->ext = $savedFile["ext"];',
+                '    $this->object->size = $savedFile["size"];',
+                '    $this->object->save();',
                 '}',
             ]);
         }
@@ -980,7 +989,7 @@ class ControllerController extends ProjectController
                     $sourceCode->lines([
                         '/**',
                         ' *  Method: ' . $method['type'],
-                        ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+                        ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
                         ' */',
                         'public function '.$method['method'].'()',
                         '{',
@@ -1013,7 +1022,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . Str::pluralize(strtolower($entity)) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
             ' */',
             'public function '.$method['method'].'()',
             '{',
