@@ -108,14 +108,14 @@ class ControllerController extends ProjectController
                 'public function storeFile($file, $path)',
                 '{',
                 '   $ext = $file->getClientOriginalExtension();',
-                '   $fileName = Str::random(16) . "." . $ext;',
+                '   $fileName = Str::random(20) . "." . $ext;',
                 '   Storage::disk("public")->putFileAs($path, $file, $fileName);',
                 '',
                 '   return [',
                 '       "path" => $path,',   
                 '       "file" => $fileName,',  
                 '       "ext" => $ext,',  
-                '       "size" => 0,',  
+                '       "size" => Storage::disk("public")->size($path . "/" . $fileName),',
                 '   ];',
                 '}',
             ])->br();
@@ -844,17 +844,36 @@ class ControllerController extends ProjectController
 
         // Якщо ця сутність відповідає за файл, то додаю метод збереження файлу після створення допису:
         if($this->isFileEntity($entity)) {
+            $sourceCode->line('if ($this->request->hasFile("file")) {')->defaultSpaces(12);
+
             $sourceCode->lines([
-                'if ($this->request->hasFile("file")) {',
-                '    $savedFile = $this->storeFile($this->request->file("file"), $this->path . "/" . $this->object->user_id);',
-                '    ',
-                '    $this->object->original = $this->path . "/" . $this->object->user_id . "/" . $savedFile["file"];',
-                '    $this->object->ext = $savedFile["ext"];',
-                '    $this->object->size = $savedFile["size"];',
-                '    $this->object->save();',
+                '$savedFile = $this->storeFile($this->request->file("file"), $this->path . "/" . $this->object->user_id);',
+                '',
+                '$this->object->original = $this->path . "/" . $this->object->user_id . "/" . $savedFile["file"];',
+                '$this->object->ext = $savedFile["ext"];',
+                '$this->object->size = $savedFile["size"];',
+                '$this->object->save();',
+            ]);
+
+            if($this->getSingleFileField($entity)) {
+                $sourceCode->lines([
+                    '',
+                    '$duplicates = ' . $entity . '::where("' . $this->getSingleFileField($entity) . '", $this->object->user_id)->where("id", "!=", $this->object->id)->get();',
+                    '',
+                    'foreach($duplicates as $duplicate) {',
+                    '    $this->deleteRecord($duplicate->toArray());',
+                    '}',
+                ]);
+            }
+
+            $sourceCode->defaultSpaces(8)->lines([
                 '}',
             ]);
+
         }
+
+
+
 
         $sourceCode->defaultSpaces(4)->lines([
             '}',
@@ -898,7 +917,29 @@ class ControllerController extends ProjectController
             ' */',
             'public function afterUpdateRecord()',
             '{',
-        ])->defaultSpaces(4); 
+        ])->defaultSpaces(8); 
+
+        // Якщо ця сутність відповідає за файл, то додаю метод збереження файлу після створення допису:
+        if($this->isFileEntity($entity)) {
+            $sourceCode->line('if ($this->request->hasFile("file")) {')->defaultSpaces(12);
+
+            $sourceCode->lines([
+                '$savedFile = $this->storeFile($this->request->file("file"), $this->path . "/" . $this->object->user_id);',
+                '',
+                '$this->deleteFile($this->object->original);',
+                '',
+                '$this->object->original = $this->path . "/" . $this->object->user_id . "/" . $savedFile["file"];',
+                '$this->object->ext = $savedFile["ext"];',
+                '$this->object->size = $savedFile["size"];',
+                '$this->object->save();',
+            ]);
+
+
+            $sourceCode->defaultSpaces(8)->lines([
+                '}',
+            ]);
+
+        }
 
         $sourceCode->defaultSpaces(4)->lines([
             '}',

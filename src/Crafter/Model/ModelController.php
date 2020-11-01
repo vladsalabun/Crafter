@@ -51,7 +51,7 @@ class ModelController extends RouteController
             'protected $table = "' . $this->getEntityTable($entity) . '";',
             '// public $timestamps = false;',
             'protected $fillable = [];',
-            'protected $guarded = ["id", "user_id"];',
+            'protected $guarded = ["id", "size", "ext"];', // для клієнтських моделей заборонено user_id
         ])->defaultSpaces(4);
 
         

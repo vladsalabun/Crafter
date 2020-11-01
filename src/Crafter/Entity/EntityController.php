@@ -37,6 +37,7 @@ class EntityController extends ModelController
             'relations' => [],
             'is_personal_data' => false,
             'is_file' => false,
+            'single_file_by_field' => false,
             'table' => $table
         ];
         
@@ -99,49 +100,65 @@ class EntityController extends ModelController
     /** 
      *  Дізнатись сутності проекту:
      */
-     public function getEntities()
-     {
-         return $this->entities;
-     }
+    public function getEntities()
+    {
+        return $this->entities;
+    }
      
-     /** 
-      *  Дізнатись таблиці проекту:
-      */
-     public function getTables()
-     {
-         return $this->tables;
-     }
+    /** 
+     *  Дізнатись таблиці проекту:
+     */
+    public function getTables()
+    {
+        return $this->tables;
+    }
 
-     /** 
-      *  Дізнатись таблицю сутності:
-      */
-      public function getEntityTable($entity)
-      {
-          return $this->project['entities'][$entity]['table'];
-      }
+    /** 
+     *  Дізнатись таблицю сутності:
+     */
+    public function getEntityTable($entity)
+    {
+        return $this->project['entities'][$entity]['table'];
+    }
 
-     /** 
-      *  Дізнатись зв'язки сутності:
-      */
-      public function getEntityRelations($entity)
-      {
-          return $this->project['entities'][$entity]['relations'];
-      }
+    /** 
+     *  Дізнатись зв'язки сутності:
+     */
+    public function getEntityRelations($entity)
+    {
+        return $this->project['entities'][$entity]['relations'];
+    }
 
-     /** 
-      *  Дізнатись чи ця сутність відповідає за файл:
-      */
-      public function isFileEntity($entity)
-      {
-          return $this->project['entities'][$entity]['is_file'];
-      }
+    /** 
+     *  Дізнатись чи ця сутність відповідає за файл:
+     */
+    public function isFileEntity($entity)
+    {
+        return $this->project['entities'][$entity]['is_file'];
+    }
       
-     /** 
-      *  Позначити, що ця сутність відповідає за файл:
-      */
-      public function setAsFileEntity($entity)
-      {
-          return $this->project['entities'][$entity]['is_file'] = true;
-      }
+    /** 
+     *  Позначити, що ця сутність відповідає за файл:
+     */
+    public function setAsFileEntity($entity, $singleField = null)
+    {
 
+        $this->project['entities'][$entity]['is_file'] = true;
+
+        // По цьому полю буде перевірятись чи такий файл існує, наприклад user_id
+        // Якщо вже такий user_id у файла є, то він буде видалений а на його місце запишеться новий:
+        if($singleField) {
+            $this->project['entities'][$entity]['single_file_by_field'] = $singleField;
+        }
+        return true;
+    }
+
+    /** 
+     *  Дізнатись по якому полю визначати унікальний файл:
+     */
+     public function getSingleFileField($entity)
+     {
+         return $this->project['entities'][$entity]['single_file_by_field'];
+     }
+      
 }
