@@ -77,11 +77,39 @@ class RouteController extends ControllerController
 	}
 
     /**
+     *  Показати масив назв методів:
+     */
+    public function getMethodsNames() 
+	{
+        $array = [];
+        foreach($this->getRouteMethodsTypes() as $method) {
+            $array[] = $method['method'];
+        }        
+        return $array;
+	}
+    
+    
+    
+    /**
      *  Показати усі типи методів:
      */
     public function getRouteMethodsTypes() 
 	{
         return $this->routeMethodsTypes;
+	}
+    
+    /**
+     *  Показати параметри вказаного методу:
+     */
+    public function getMethodParams($methodName) 
+	{
+        foreach($this->getRouteMethodsTypes() as $method) {
+            if($methodName == $method['method']) {
+                return $method;
+            }
+        }
+        
+        return false;
 	}
     
     
