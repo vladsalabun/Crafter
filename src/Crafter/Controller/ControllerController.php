@@ -207,7 +207,7 @@ class ControllerController extends ProjectController
                     $sourceCode->lines([
                         '/**',
                         ' *  Method: ' . $method['type'],
-                        ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
+                        ' *  Route: ' . $this->getEntityTable($entity) . $method['route_postfix'],
                         ' */',
                         'public function '.$method['method'].'()',
                         '{',
@@ -258,7 +258,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['route_postfix'],
             ' */',
             'public function '.$method['method'].'()',
             '{',
@@ -307,7 +307,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['route_postfix'],
             ' */',
             'public function '.$method['method'].'($id)',
             '{',
@@ -350,7 +350,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['route_postfix'],
             ' */',
             'public function '.$method['method'].'($id)',
             '{',
@@ -401,7 +401,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['route_postfix'],
             ' */',
             'public function '.$method['method'].'($id)',
             '{',
@@ -449,7 +449,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['route_postfix'],
             ' */',
             'public function '.$method['method'].'()',
             '{',
@@ -607,7 +607,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['route_postfix'],
             ' */',
             'public function '.$method['method'].'()',
             '{',
@@ -662,7 +662,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['route_postfix'],
             ' */',
             'public function '.$method['method'].'()',
             '{',
@@ -1030,7 +1030,7 @@ class ControllerController extends ProjectController
                     $sourceCode->lines([
                         '/**',
                         ' *  Method: ' . $method['type'],
-                        ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
+                        ' *  Route: ' . $this->getEntityTable($entity) . $method['route_postfix'],
                         ' */',
                         'public function '.$method['method'].'()',
                         '{',
@@ -1063,7 +1063,7 @@ class ControllerController extends ProjectController
         $sourceCode->defaultSpaces(4)->lines([
             '/**',
             ' *  Method: ' . $method['type'],
-            ' *  Route: ' . $this->getEntityTable($entity) . $method['postfix'],
+            ' *  Route: ' . $this->getEntityTable($entity) . $method['route_postfix'],
             ' */',
             'public function '.$method['method'].'()',
             '{',

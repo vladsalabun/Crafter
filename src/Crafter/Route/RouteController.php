@@ -22,47 +22,47 @@ class RouteController extends ControllerController
         [
             'method' => 'read',  // Готово!
             'type' => 'GET',
-            'postfix' => '/{id}',
+            'route_postfix' => '/{id}',
         ],
         [
             'method' => 'update', // Готово!
             'type' => 'PUT',
-            'postfix' => '/{id}',
+            'route_postfix' => '/{id}',
         ],
         [
             'method' => 'patch',
             'type' => 'PATCH',
-            'postfix' => '/{id}',
+            'route_postfix' => '/{id}',
         ],
         [
             'method' => 'delete', // Готово!
             'type' => 'DELETE',
-            'postfix' => '/{id}',
+            'route_postfix' => '/{id}',
         ],
         [
             'method' => 'create',  // Готово!
             'type' => 'POST',
-            'postfix' => '',
+            'route_postfix' => '',
         ],
         [
             'method' => 'bulkUpdate',  // Готово!
             'type' => 'PUT',
-            'postfix' => '',
+            'route_postfix' => '',
         ],
         [
             'method' => 'bulkPatch',
             'type' => 'PATCH',
-            'postfix' => '',
+            'route_postfix' => '',
         ],
         [
             'method' => 'bulkDelete',  // Готово!
             'type' => 'DELETE',
-            'postfix' => '',
+            'route_postfix' => '',
         ],
         [
             'method' => 'search',
             'type' => 'GET',
-            'postfix' => '/search',
+            'route_postfix' => '/search',
         ],
     ];
 /*
@@ -106,7 +106,7 @@ class RouteController extends ControllerController
             // Роути:
             foreach($this->getRouteMethodsTypes() as $method) {
                 
-                $sourceCode->line("Route::" . strtolower($method['type']) . "('" . $this->getEntityTable($entity) . $method['postfix'] . "', '" . $this->getAdminControllersNamespace() . '\\'.$entity . "Controller@" . $method['method'] . "');");
+                $sourceCode->line("Route::" . strtolower($method['type']) . "('" . $this->getEntityTable($entity) . $method['route_postfix'] . "', '" . $this->getAdminControllersNamespace() . '\\'.$entity . "Controller@" . $method['method'] . "');");
 
             }
             
