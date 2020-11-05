@@ -160,5 +160,5 @@ class EntityController extends ModelController
      {
          return $this->project['entities'][$entity]['single_file_by_field'];
      }
-      
+
 }

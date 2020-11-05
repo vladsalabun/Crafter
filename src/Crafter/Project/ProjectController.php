@@ -14,6 +14,7 @@ use Salabun\Crafter\Error\ErrorController;
     - RouteController
     - ModelController
     - EntityController
+    - FrontController
     - Crafter
 
 */

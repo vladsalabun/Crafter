@@ -5,12 +5,12 @@ namespace Salabun;
 use Salabun\DataSets\WebRoutes;
 use Salabun\DataSets\DefaultFieldsParam;
 use Salabun\DB\MySQLParser;
-use Salabun\Crafter\Entity\EntityController;
+use Salabun\Crafter\Front\FrontController;
 
 /**
  *  Генератор крудів:
  */
-class Crafter extends EntityController
+class Crafter extends FrontController
 {
     
     /**
