@@ -10,6 +10,12 @@ use Salabun\CodeWriter;
  */
 class ComposerController
 { 
+    // TODO
+    /*
+        https://github.com/trntv/probe
+        https://github.com/jolicode/JoliNotif
+    */
+
 
     public $packagesLibrary = [
         [

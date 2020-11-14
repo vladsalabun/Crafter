@@ -90,7 +90,7 @@ class ModelController extends RouteController
                             '{',
                         ]);
 
-                        $sourceCode->s(4)->line('return $this->hasMany("App\\' . $this->getAdminControllersNamespace() . 'Models\\'.$relatedModel.'", "id", "' . Str::toSnakeCase($relatedModel) . '_id");');
+                        $sourceCode->s(4)->line('return $this->hasMany("App\\' . $this->getAdminControllersNamespace() . 'Models\\'.$relatedModel.'", "' . Str::toSnakeCase($entity) . '_id", "id");');
                         $sourceCode->s(0)->line('}');
                         
                     } else if($relation == 'belongsToMany') {
