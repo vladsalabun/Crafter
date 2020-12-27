@@ -50,6 +50,7 @@ class ModelController extends RouteController
             '// protected $connection = "mysql";',
             'protected $table = "' . $this->getEntityTable($entity) . '";',
             '// public $timestamps = false;',
+            '// protected $appends = []',
             'protected $fillable = [];',
             'protected $guarded = ["id", "size", "ext"];', // для клієнтських моделей заборонено user_id
         ])->defaultSpaces(4);
